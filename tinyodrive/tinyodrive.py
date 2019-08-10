@@ -39,11 +39,35 @@ class TinyOdrive:
             baudrate=115200)
         return odrive
 
-    async def set_velocity(self, motor, velocity):
+    async def set_velocity(self, motor, velocity: int):
         if not self._protocol.connected.is_set():
             await self._protocol.connected.wait()
         cmd = "v %d %d\n" % (motor, velocity)
         self._transport.write(cmd.encode("ascii"))
+
+    async def set_current(self, motor, current):
+        pass
+
+    async def get_feedback(self, motor):
+        pass
+
+    async def update_watchdog(self, motor):
+        pass
+
+    async def read_property(self, prop):
+        pass
+
+    async def write_property(self, prop, value):
+        pass
+
+    async def save_config(self):
+        pass
+
+    async def erase_config(self):
+        pass
+
+    async def reboot(self):
+        pass
 
 
 async def main():
