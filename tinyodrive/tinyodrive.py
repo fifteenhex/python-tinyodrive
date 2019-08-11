@@ -6,12 +6,15 @@ import serial_asyncio
 
 
 class TinyOdrive:
+    PROPERTY_VBUS_VOLTAGE = "vbus_voltage"
+
     class ASCIIProtocol(asyncio.Protocol):
 
         def __init__(self):
             super().__init__()
             self.connected = asyncio.Event()
             self.transport = None
+            self._result_event = asyncio.Event()
 
         def connection_made(self, transport):
             print("odrive connected")
@@ -19,7 +22,7 @@ class TinyOdrive:
             self.connected.set()
 
         def data_received(self, data):
-            pass
+            print("data in: %s" % data)
 
         def connection_lost(self, exc):
             print("odrive disconnected")
@@ -39,11 +42,14 @@ class TinyOdrive:
             baudrate=115200)
         return odrive
 
+    def _write_cmd(self, cmd):
+        self._transport.write(cmd.encode("ascii"))
+
     async def set_velocity(self, motor, velocity: int):
         if not self._protocol.connected.is_set():
             await self._protocol.connected.wait()
         cmd = "v %d %d\n" % (motor, velocity)
-        self._transport.write(cmd.encode("ascii"))
+        self._write_cmd(cmd)
 
     async def set_current(self, motor, current):
         pass
@@ -52,10 +58,19 @@ class TinyOdrive:
         pass
 
     async def update_watchdog(self, motor):
-        pass
+        if not self._protocol.connected.is_set():
+            await self._protocol.connected.wait()
+        cmd = "u %d\n" % motor
+        self._write_cmd(cmd)
 
     async def read_property(self, prop):
-        pass
+        if not self._protocol.connected.is_set():
+            await self._protocol.connected.wait()
+        cmd = "r %s\n" % prop
+        self._write_cmd(cmd)
+
+    async def get_vbus_voltage(self):
+        return await self.read_property(TinyOdrive.PROPERTY_VBUS_VOLTAGE)
 
     async def write_property(self, prop, value):
         pass
