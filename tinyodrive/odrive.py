@@ -76,13 +76,16 @@ class TinyOdrive:
         pass
 
     async def save_config(self):
-        pass
+        cmd = "ss\n"
+        self._write_cmd(cmd)
 
     async def erase_config(self):
-        pass
+        cmd = "se\n"
+        self._write_cmd(cmd)
 
     async def reboot(self):
-        pass
+        cmd = "sr\n"
+        self._write_cmd(cmd)
 
 
 async def main():
